@@ -18,7 +18,7 @@ void AutoScrollingLabel::paintEvent(QPaintEvent* event)
 {
     if (!this->text().isEmpty())
     {
-        if (!this->animateOnMouseOver || this->mouseOverLabel)
+        if (this->isVisible() && (!this->animateOnMouseOver || this->mouseOverLabel))
         {
             if (this->rect().width() < this->textWidth())
             {
@@ -70,15 +70,28 @@ void AutoScrollingLabel::leaveEvent(QEvent* event)
     QLabel::leaveEvent(event);
 }
 
+void AutoScrollingLabel::mousePressEvent(QMouseEvent* event)
+{
+    this->animationTimer.start(this->animationTimeout / 2);
+    QLabel::mousePressEvent(event);
+}
+
+void AutoScrollingLabel::mouseReleaseEvent(QMouseEvent* event)
+{
+    this->animationTimer.start(this->animationTimeout);
+    QLabel::mouseReleaseEvent(event);
+}
+
 AutoScrollingLabel::AutoScrollingLabel(QString const& text, QWidget* parent) : QLabel(text, parent)
 {
     setMouseTracking(true);
     connect(&this->animationTimer, &QTimer::timeout, this, [this]() {
-        this->timerShift = (this->timerShift + 1) %
+        this->timerShift = (this->timerShift + 2) %
                            (this->textWidth() + QFontMetrics(this->font()).boundingRect(this->textSpacer).width());
         this->update();
     });
-    this->animationTimer.start(50);
+    this->animationTimeout = 50;
+    this->animationTimer.start(this->animationTimeout);
 }
 
 AutoScrollingLabel::AutoScrollingLabel(QWidget* parent) : AutoScrollingLabel(QString(), parent)
@@ -87,7 +100,8 @@ AutoScrollingLabel::AutoScrollingLabel(QWidget* parent) : AutoScrollingLabel(QSt
 
 void AutoScrollingLabel::setAnimationTimeout(int msec)
 {
-    this->animationTimer.start(msec);
+    this->animationTimeout = msec;
+    this->animationTimer.start(this->animationTimeout);
 }
 
 void AutoScrollingLabel::setAnimateOnMouseOver(bool b)

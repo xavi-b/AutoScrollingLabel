@@ -17,8 +17,9 @@ private:
     bool    animateOnMouseOver = true;
     bool    mouseOverLabel     = false;
     QTimer  animationTimer;
-    int     timerShift = 0;
-    QString textSpacer = " - ";
+    int     animationTimeout = 0;
+    int     timerShift       = 0;
+    QString textSpacer       = " - ";
 
     int textWidth() const;
 
@@ -26,6 +27,8 @@ protected:
     virtual void paintEvent(QPaintEvent*) override;
     virtual void enterEvent(QEvent*) override;
     virtual void leaveEvent(QEvent*) override;
+    virtual void mousePressEvent(QMouseEvent*) override;
+    virtual void mouseReleaseEvent(QMouseEvent*) override;
 
 public:
     AutoScrollingLabel(QString const& text, QWidget* parent = nullptr);
